@@ -1,0 +1,22 @@
+.academic-year-metrics {
+    margin-bottom: 40px;
+}
+
+.metrics-container {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.metrics-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+}
+
+.metric-graph {
+    flex: 1;
+    min-width: 250px; /* Ensure all charts have the same minimum width */
+    max-width: 300px; /* Control the maximum width */
+    height:300px; /* Ensure all charts have the same height */
+}
