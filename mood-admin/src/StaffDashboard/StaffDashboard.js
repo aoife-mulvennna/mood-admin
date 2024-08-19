@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import StatisticsCard from './StatisticsCard';
 import DistributionPieChart from './DistributionPieChart';
 import MetricsOverTime from './MetricsOverTime';
+import MoodComparisonChart from './MoodComparisonChart'; 
 import { variables } from '../Variables';
 
 const StaffDashboard = () => {
@@ -144,8 +145,7 @@ const StaffDashboard = () => {
 
         {/* Placeholder for Additional Information */}
         <div className="p-4 border border-gray-300">
-          <h2 className="text-lg font-semibold">Additional Information</h2>
-          <p className="text-sm text-gray-700">This card will show a comparison bar chart comparing either two years or months or weeks</p>
+        <MoodComparisonChart />
         </div>
       </div>
     </div>

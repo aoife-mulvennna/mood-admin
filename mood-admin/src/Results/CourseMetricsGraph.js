@@ -47,7 +47,21 @@ const CourseMetricsGraph = ({ courseName }) => {
             return res.json();
         })
         .then((data) => {
-            setData(data);
+            const today = new Date();
+            const oneMonthAgo = new Date();
+            oneMonthAgo.setMonth(today.getMonth() - 1);
+
+            const dateArray = [];
+            for (let d = new Date(oneMonthAgo); d <= today; d.setDate(d.getDate() + 1)) {
+                dateArray.push(new Date(d).toISOString().split('T')[0]);
+            }
+
+            const completeData = dateArray.map(date => {
+                const record = data.find(r => r.date === date);
+                return record || { date, mood: null, exercise: null, sleep: null, socialisation: null, productivity: null };
+            });
+
+            setData(completeData);
             setLoading(false);
         })
         .catch((err) => {
@@ -69,16 +83,30 @@ const CourseMetricsGraph = ({ courseName }) => {
         return <div className="text-gray-600">No data available for {courseName}</div>;
     }
 
+    const today = new Date().toISOString().split('T')[0]; // Get today's date in 'YYYY-MM-DD' format
+
     const chartData = (metric) => {
+        const labels = data.map(record => record.date);
+    
+        // Replace today's date with 'Today'
+        const updatedLabels = labels.map(label => label === today ? 'Today' : label);
+    
+            // Check if today's date is already in the labels; if not, add it.
+    if (!updatedLabels.includes('Today')) {
+        updatedLabels.push('Today');
+        // Add a corresponding value (e.g., null) to avoid breaking the data alignment
+        data.push({ date: today, [metric]: null });
+    }
         return {
-            labels: data.map(record => record.date),
+            labels: updatedLabels,
             datasets: [{
                 label: metric,
                 data: data.map(record => record[metric]),
                 fill: false,
                 borderColor: 'rgba(75,192,192,1)',
                 tension: 0.1,
-                radius: 0
+                radius: 0,
+                spanGaps: true  
             }]
         };
     };
@@ -95,11 +123,24 @@ const CourseMetricsGraph = ({ courseName }) => {
             x: {
                 type: 'category',
                 labels: data.map(record => record.date),
+                ticks: {
+                    autoSkip: true, // Skip labels
+                    maxTicksLimit: 10, // Limit the number of labels shown
+                    maxRotation: 45, // Rotate labels 45 degrees
+                    minRotation: 45, // Ensure the labels are rotated
+                    
+                },
             },
             y: {
-                beginAtZero: true,
+                beginAtZero: false,
+                min: 1,
+                max: 5,
+                ticks: {
+                    stepSize: 1
+                }
             },
         },
+        spanGaps: true,
     };
 
     return (

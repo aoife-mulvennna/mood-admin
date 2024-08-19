@@ -96,9 +96,17 @@ const YearlyMetricsGraph = ({ academicYear }) => {
             x: {
                 type: 'category',
                 labels: data.map(record => record.date),
+                ticks: {
+                    autoSkip: true,
+                    maxTicksLimit: 10,
+                    maxRotation: 45,
+                    minRotation: 45,
+                },
             },
             y: {
-                beginAtZero: true,
+                beginAtZero: false,
+                min: 1,
+                max: 5,
                 ticks: {
                     stepSize: 1 // Control the step size of the y-axis ticks
                 },
