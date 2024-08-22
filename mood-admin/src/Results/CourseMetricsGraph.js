@@ -146,32 +146,32 @@ const CourseMetricsGraph = ({ courseName }) => {
     return (
         <div className="mb-10">
             <h3 className="text-xl font-semibold text-gray-800 mb-4">{courseName}</h3>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div className="bg-gray-100 p-4">
+            <div className="grid grid-cols-1gap-6">
+                <div className="p-4">
                     <h4 className="text-lg font-semibold text-gray-700 mb-2">Mood</h4>
                     <div className="h-64">
                         <Line data={chartData('mood')} options={chartOptions} />
                     </div>
                 </div>
-                <div className="bg-gray-100 p-4">
+                <div className="p-4">
                     <h4 className="text-lg font-semibold text-gray-700 mb-2">Exercise</h4>
                     <div className="h-64">
                         <Line data={chartData('exercise')} options={chartOptions} />
                     </div>
                 </div>
-                <div className="bg-gray-100 p-4">
+                <div className="p-4">
                     <h4 className="text-lg font-semibold text-gray-700 mb-2">Sleep</h4>
                     <div className="h-64">
                         <Line data={chartData('sleep')} options={chartOptions} />
                     </div>
                 </div>
-                <div className="bg-gray-100 p-4">
+                <div className="p-4">
                     <h4 className="text-lg font-semibold text-gray-700 mb-2">Socialisation</h4>
                     <div className="h-64">
                         <Line data={chartData('socialisation')} options={chartOptions} />
                     </div>
                 </div>
-                <div className="bg-gray-100 p-4">
+                <div className="p-4">
                     <h4 className="text-lg font-semibold text-gray-700 mb-2">Productivity</h4>
                     <div className="h-64">
                         <Line data={chartData('productivity')} options={chartOptions} />

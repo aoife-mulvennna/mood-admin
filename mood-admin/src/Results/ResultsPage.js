@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { variables } from './Variables';
+import { variables } from '../Variables';
 
 const TagStatistics = ({ tagName }) => {
     const [percentage, setPercentage] = useState(null);

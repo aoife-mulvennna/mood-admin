@@ -44,7 +44,7 @@ const StaffLogin = () => {
       <h3 className="text-2xl font-bold text-center mb-6">Please Log In</h3>
       <form className="space-y-4" onSubmit={handleLogin}>
         <div>
-          <label className="block text-sm font-medium text-gray-700">Staff Number</label>
+          <label className="block text-m font-medium text-gray-700">Staff Number</label>
           <input
             type="number"
             value={staffNumber}
@@ -54,7 +54,7 @@ const StaffLogin = () => {
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700">Password</label>
+          <label className="block text-m font-medium text-gray-700">Password</label>
           <input
             type="password"
             value={staffPassword}
@@ -70,12 +70,12 @@ const StaffLogin = () => {
           >
             Submit
           </button>
-          <Link to="/create-account" className="text-sm text-red-500 hover:underline">
+          {/* <Link to="/create-account" className="text-sm text-red-500 hover:underline">
             Don't have an account? Sign up here
-          </Link>
+          </Link> */}
         </div>
         <div className="text-center mt-4">
-          <Link to="/forgot-password" className="text-sm text-gray-600 hover:underline">
+          <Link to="/forgot-password" className="text-m text-gray-600 hover:underline">
             Forgot your password? Click here to reset it.
           </Link>
         </div>
@@ -83,7 +83,7 @@ const StaffLogin = () => {
           <button
             type="button"
             onClick={() => navigate(-1)}
-            className="text-sm text-gray-600 hover:underline"
+            className="text-m text-red-600 hover:underline"
           >
             Go back
           </button>

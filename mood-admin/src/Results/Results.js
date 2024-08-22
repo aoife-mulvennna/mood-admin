@@ -3,6 +3,8 @@ import { variables } from '../Variables';
 import ExportCSVButton from '../ExportCSV';
 import YearlyMetricsGraph from './YearlyMetricsGraph';
 import CourseMetricsGraph from './CourseMetricsGraph';
+import AssignmentCorrelation from './AssignmentCorrelation';
+import ConcerningCohorts from './ConcerningCohorts';
 import { Bar } from 'react-chartjs-2';
 import {
     Chart as ChartJS,
@@ -25,6 +27,10 @@ const Results = () => {
     const [error, setError] = useState(null);
     const [academicYears, setAcademicYears] = useState([]);
     const [courses, setCourses] = useState([]);
+    const [selectedYear1, setSelectedYear1] = useState('');
+    const [selectedYear2, setSelectedYear2] = useState('');
+    const [selectedCourse1, setSelectedCourse1] = useState('');
+    const [selectedCourse2, setSelectedCourse2] = useState('');
 
     useEffect(() => {
         const token = sessionStorage.getItem('token');
@@ -60,33 +66,8 @@ const Results = () => {
 
         // Fetch relevant tag statistics
         fetchTagStatistics(token);
-        // Fetch academic years
-        fetch(`${variables.API_URL}course-years`, {
-            headers: {
-                Authorization: `Bearer ${token}`,
-            },
-        })
-            .then((res) => res.json())
-            .then((data) => {
-                setAcademicYears(data);
-            })
-            .catch((err) => {
-                console.error('Error fetching academic years:', err);
-            });
-        // Fetch courses
-        fetch(`${variables.API_URL}course-names`, {
-            headers: {
-                Authorization: `Bearer ${token}`,
-            },
-        })
-            .then((res) => res.json())
-            .then((data) => {
-                setCourses(data); // Set the course list in state
-            })
-            .catch((err) => {
-                console.error('Error fetching courses:', err);
-            });
-
+        fetchAcademicYears(token);
+        fetchCourses(token);
     }, []);
 
     const fetchTagStatistics = () => {
@@ -102,11 +83,50 @@ const Results = () => {
                 return res.json();
             })
             .then((data) => {
-                setTagStatistics(data.tagStatistics || []);
+                const sortedData = (data.tagStatistics || []).sort((a, b) => b.percentage - a.percentage);
+                setTagStatistics(sortedData);
             })
             .catch((err) => {
                 console.error('Error fetching tag statistics:', err);
             });
+    };
+    // Fetch academic years
+    const fetchAcademicYears = (token) => {
+        fetch(`${variables.API_URL}course-years`, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        })
+            .then((res) => res.json())
+            .then((data) => {
+                setAcademicYears(data);
+            })
+            .catch((err) => {
+                console.error('Error fetching academic years:', err);
+            });
+    };
+    // Fetch courses
+    const fetchCourses = (token) => {
+        fetch(`${variables.API_URL}course-names`, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        })
+            .then((res) => res.json())
+            .then((data) => {
+                setCourses(data); // Set the course list in state
+            })
+            .catch((err) => {
+                console.error('Error fetching courses:', err);
+            });
+    };
+
+    const handleYearChange = (e, setYear) => {
+        setYear(e.target.value);
+    };
+
+    const handleCourseChange = (e, setCourse) => {
+        setCourse(e.target.value);
     };
 
     if (loading) {
@@ -163,89 +183,67 @@ const Results = () => {
             {
                 label: 'Percentage of Students',
                 data: tagStatistics.map(tag => tag.percentage),
-                backgroundColor: tagStatistics.map((_, index) =>
-                    `rgba(${75 + index * 20}, ${192 - index * 10}, 192, 0.8)`
-                ), // Create a gradient effect
-                borderColor: tagStatistics.map((_, index) =>
-                    `rgba(${75 + index * 20}, ${192 - index * 10}, 192, 1)`
-                ),
-                borderWidth: 2,
-                maxBarThickness: 20, // Limits maximum bar thickness
-                barPercentage: 0.9, // Decrease bar width within the category to reduce gaps
-                categoryPercentage: 0.9, // Adjust the category width to control overall bar spacing
+                backgroundColor: 'rgba(54, 162, 235, 0.6)', // A nice blue color
+                borderColor: 'rgba(54, 162, 235, 1)', // Darker blue border
+                borderWidth: 1,
+                barPercentage: 1,
+                categoryPercentage: 0.75,
             },
         ],
     };
 
     const tagChartOptions = {
-        indexAxis: 'y', // makes the bars horizontal
+        indexAxis: 'y', // This makes the bars upright
         scales: {
-            x: {
-                beginAtZero: true,
-                display: false, // Hide x-axis
+            y: {
+                beginAtZero: true, // Start the y-axis at zero
+                ticks: {
+                    font: {
+                        size: 14, // Increase font size for y-axis labels
+                    },
+                },
                 grid: {
-                    drawOnChartArea: true, // Draw subtle gridlines
                     color: 'rgba(200, 200, 200, 0.3)', // Light gray gridlines
                 },
             },
-            y: {
-                beginAtZero: true,
+            x: {
+                stacked: true,
                 ticks: {
-                    maxTicksLimit: 5,
                     font: {
-                        size: 14, // Increase font size for y-axis labels
-                        family: 'Arial, sans-serif', // Change font
+                        size: 14, // Increase font size for x-axis labels
                     },
+
                 },
-                afterFit: (axis) => {
-                    axis.width = 180; // Increased width for the y-axis
+                grid: {
+                    display: false, // Hide vertical gridlines for a cleaner look
                 },
-            },
-        },
-        layout: {
-            padding: {
-                left: 10, // Adjust left padding
-                right: 20, // Adjust right padding
+                max: 100,
             },
         },
         plugins: {
             legend: {
-                display: false,
+                display: false, // Hide the legend for simplicity
             },
             tooltip: {
                 callbacks: {
-                    label: (context) => `${context.raw}%`,
-                },
-                backgroundColor: 'rgba(0, 0, 0, 0.7)', // Darker tooltip background
-                titleFont: {
-                    size: 14,
-                    family: 'Arial, sans-serif',
-                },
-                bodyFont: {
-                    size: 12,
-                    family: 'Arial, sans-serif',
-                },
-            },
-            datalabels: {
-                anchor: 'end',
-                align: 'end',
-                formatter: (value) => `${value}%`,
-                color: 'black',
-                font: {
-                    size: 14, // Increase font size for data labels
-                    family: 'Arial, sans-serif',
+                    label: (context) => `${context.raw}%`, // Show percentage in the tooltip
                 },
             },
         },
-
+        maintainAspectRatio: false,
     };
+    const chartHeight = Math.max(400, tagStatistics.length * 50);
 
     return (
 
         <div className="max-w-7xl mx-auto mt-4 p-4 bg-white">
             <h1 className="text-2xl font-semibold text-gray-800 mb-6">Results</h1>
+            <ExportCSVButton />
+           
+            <div className="flex justify-between">
+            <div className="flex-1 mr-4">
             <h4 className="text-xl font-semibold text-gray-800 mb-6">Weekly Averages by Academic Year</h4>
-            <div className="overflow-x-auto mb-8">
+            <div className="overflow-x-auto mb-6">
                 <table className="min-w-full bg-gray-50 border border-gray-200 ">
                     <thead className="bg-gray-100">
                         <tr>
@@ -298,7 +296,12 @@ const Results = () => {
                     </tbody>
                 </table>
             </div>
-
+         
+            </div>
+            <div className="w-1/3">
+            <ConcerningCohorts />
+            </div>
+            </div>
             <div className="tag-statistics mb-8">
                 <h2 className="text-xl font-semibold text-gray-800 mb-4">Tag Statistics</h2>
                 {/* {tagStatistics.length > 0 ? (
@@ -313,28 +316,136 @@ const Results = () => {
                 ) : (
                     <p className="text-gray-600">No tags have been recorded by students in the last month.</p>
                 )} */}
-                {tagStatistics.length > 0 ? (
-                    <Bar data={tagChartData} options={tagChartOptions} />
-                ) : (
-                    <p className="text-gray-600">No tags have been recorded by students in the last month.</p>
-                )}
+                <div style={{ height: chartHeight }}>
+                    {tagStatistics.length > 0 ? (
+                        <Bar data={tagChartData} options={tagChartOptions} />
+                    ) : (
+                        <p className="text-gray-600">No tags have been recorded by students in the last month.</p>
+                    )}
+                </div>
             </div>
 
-            <h2 className="text-xl font-semibold text-gray-800 mb-6">Yearly Metrics by Academic Year</h2>
+            {/* <h2 className="text-xl font-semibold text-gray-800 mb-6">Yearly Metrics by Academic Year</h2>
             {academicYears.map((year, index) => (
                 <div key={index} className="mb-8">
                     <YearlyMetricsGraph academicYear={year.academic_year_name} />
                 </div>
-            ))}
-            <h2 className="text-xl font-semibold text-gray-800 mb-6">Yearly Metrics by Course</h2>
-            {courses.map((course, index) => (
-                <div key={index} className="mb-8">
-                    <CourseMetricsGraph courseName={course.course_name} />
-                </div>
-            ))}
-            <ExportCSVButton />
-        </div>
+            ))} */}
+            <h2 className="text-xl font-semibold text-gray-800 mb-6">Compare Yearly Metrics</h2>
+            <div className="flex space-x-4 mb-6">
+                <select
+                    value={selectedYear1}
+                    onChange={(e) => handleYearChange(e, setSelectedYear1)}
+                    className="border p-2 rounded"
+                >
+                    <option value="">Select Year 1</option>
+                    {academicYears.map((year) => (
+                        <option key={year.academic_year_name} value={year.academic_year_name}>
+                            {year.academic_year_name}
+                        </option>
+                    ))}
+                </select>
+                <select
+                    value={selectedYear2}
+                    onChange={(e) => handleYearChange(e, setSelectedYear2)}
+                    className="border p-2 rounded"
+                >
+                    <option value="">Select Year 2</option>
+                    {academicYears.map((year) => (
+                        <option key={year.academic_year_name} value={year.academic_year_name}>
+                            {year.academic_year_name}
+                        </option>
+                    ))}
+                </select>
+            </div>
 
+            {selectedYear1 && !selectedYear2 && (
+                <div className="grid grid-cols-1 gap-4 mb-8">
+                    <div>
+                        <YearlyMetricsGraph academicYear={selectedYear1} />
+                    </div>
+                </div>
+            )}
+
+            {selectedYear2 && !selectedYear1 && (
+                <div className="grid grid-cols-1 gap-4 mb-8">
+                    <div>
+                        <YearlyMetricsGraph academicYear={selectedYear2} />
+                    </div>
+                </div>
+            )}
+
+            {selectedYear1 && selectedYear2 && (
+                <div className="grid grid-cols-2 gap-4 mb-8">
+                    <div>
+                        <YearlyMetricsGraph academicYear={selectedYear1} />
+                    </div>
+                    <div>
+                        <YearlyMetricsGraph academicYear={selectedYear2} />
+                    </div>
+                </div>
+            )}
+
+            <h2 className="text-xl font-semibold text-gray-800 mb-6">Compare Course Metrics</h2>
+            <div className="flex space-x-4 mb-6">
+                <select
+                    value={selectedCourse1}
+                    onChange={(e) => handleCourseChange(e, setSelectedCourse1)}
+                    className="border p-2 rounded"
+                >
+                    <option value="">Select Course 1</option>
+                    {courses.map((course) => (
+                        <option key={course.course_name} value={course.course_name}>
+                            {course.course_name}
+                        </option>
+                    ))}
+                </select>
+                <select
+                    value={selectedCourse2}
+                    onChange={(e) => handleCourseChange(e, setSelectedCourse2)}
+                    className="border p-2 rounded"
+                >
+                    <option value="">Select Course 2</option>
+                    {courses.map((course) => (
+                        <option key={course.course_name} value={course.course_name}>
+                            {course.course_name}
+                        </option>
+                    ))}
+                </select>
+            </div>
+
+            {selectedCourse1 && !selectedCourse2 && (
+                <div className="grid grid-cols-1 gap-4 mb-8">
+                    <div>
+                        <CourseMetricsGraph courseName={selectedCourse1} />
+                    </div>
+                </div>
+            )}
+
+            {selectedCourse2 && !selectedCourse1 && (
+                <div className="grid grid-cols-1 gap-4 mb-8">
+                    <div>
+                        <CourseMetricsGraph courseName={selectedCourse2} />
+                    </div>
+                </div>
+            )}
+
+            {selectedCourse1 && selectedCourse2 && (
+                <div className="grid grid-cols-2 gap-4 mb-8">
+                    <div>
+                        <CourseMetricsGraph courseName={selectedCourse1} />
+                    </div>
+                    <div>
+                        <CourseMetricsGraph courseName={selectedCourse2} />
+                    </div>
+                </div>
+            )}
+<div>
+
+
+</div>
+          
+        </div>
     );
 };
 
