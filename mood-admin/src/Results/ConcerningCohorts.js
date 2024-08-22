@@ -39,7 +39,7 @@ const ConcerningCohorts = () => {
     };
 
     return (
-        <div className="p-4 bg-yellow-100 border border-yellow-400 rounded-md my-4">
+        <div className="p-4 bg-yellow-100 border border-yellow-400 my-4">
             <h3 className="text-yellow-800 font-semibold">Concerning Cohorts</h3>
             {concerningCohorts.map((cohort, index) => {
                 const concerns = [

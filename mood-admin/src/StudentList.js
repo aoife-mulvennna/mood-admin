@@ -1,51 +1,46 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { variables } from './Variables';
-import jwtDecode from 'jwt-decode';
 
 const StudentList = () => {
   const [students, setStudents] = useState([]);
+  const [courses, setCourses] = useState([]);
+  const [academicYears, setAcademicYears] = useState([]);
+  const [selectedCourses, setSelectedCourses] = useState([]);
+  const [selectedAcademicYears, setSelectedAcademicYears] = useState([]);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [sortOption, setSortOption] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
 
-  const downloadCSV = () => {
-    const token = sessionStorage.getItem('token');
-
-    fetch(`${variables.API_URL}export-studentlist-csv`, {
-      method: 'GET',
-      headers: {
-        'Authorization': `Bearer ${token}`
-      }
-    })
-    .then(response => {
-      if (response.ok) {
-        return response.blob();
-      } else {
-        throw new Error('Failed to download CSV');
-      }
-    })
-    .then(blob => {
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-
-      // Get the current date and time to include in the filename
-      const currentDateTime = new Date().toISOString().slice(0, 19).replace(/[-:T]/g, '');
-      a.download = `StudentList_${currentDateTime}.csv`;
-
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-    })
-    .catch(error => {
-      console.error('Error downloading CSV:', error);
-    });
-  };
-
   useEffect(() => {
+    fetchCourses();
+    fetchAcademicYears();
     fetchStudents();
   }, []);
+
+  const fetchCourses = async () => {
+    try {
+      const response = await fetch(`${variables.API_URL}course-names`);
+      const data = await response.json();
+      console.log('Courses:', data);
+      setCourses(data);
+    } catch (error) {
+      console.error('Error fetching courses:', error);
+    }
+  };
+
+  const fetchAcademicYears = async () => {
+    try {
+      const response = await fetch(`${variables.API_URL}course-years`);
+      const data = await response.json();
+      setAcademicYears(data);
+      console.log('Academic Years:', data);
+    } catch (error) {
+      console.error('Error fetching academic years:', error);
+    }
+  };
 
   const fetchStudents = async () => {
     const token = sessionStorage.getItem('token');
@@ -61,24 +56,34 @@ const StudentList = () => {
           Authorization: `Bearer ${token}`,
         },
       });
-
       if (!response.ok) {
-        if (response.status === 401) {
-          setError('Unauthorized access. Please log in again.');
-        } else {
-          setError('Failed to fetch students.');
-        }
-        setLoading(false);
-        return;
+        throw new Error('Failed to fetch students');
       }
 
       const data = await response.json();
       setStudents(data.students);
       setLoading(false);
     } catch (error) {
+      console.error('Error fetching students:', error);
       setError(error.message);
       setLoading(false);
     }
+  };
+
+  const handleCourseChange = (e) => {
+    const value = e.target.value;
+    const isChecked = e.target.checked;
+    setSelectedCourses(prev =>
+      isChecked ? [...prev, value] : prev.filter(course => course !== value)
+    );
+  };
+
+  const handleYearChange = (e) => {
+    const value = e.target.value;
+    const isChecked = e.target.checked;
+    setSelectedAcademicYears(prev =>
+      isChecked ? [...prev, value] : prev.filter(year => year !== value)
+    );
   };
 
   const getMoodIcon = (moodTrend) => {
@@ -99,6 +104,40 @@ const StudentList = () => {
     }
   };
 
+  const downloadCSV = () => {
+    const token = sessionStorage.getItem('token');
+
+    fetch(`${variables.API_URL}export-studentlist-csv`, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    })
+      .then(response => {
+        if (response.ok) {
+          return response.blob();
+        } else {
+          throw new Error('Failed to download CSV');
+        }
+      })
+      .then(blob => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+
+        // Get the current date and time to include in the filename
+        const currentDateTime = new Date().toISOString().slice(0, 19).replace(/[-:T]/g, '');
+        a.download = `StudentList_${currentDateTime}.csv`;
+
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+      })
+      .catch(error => {
+        console.error('Error downloading CSV:', error);
+      });
+  };
+
   if (loading) {
     return (
       <div className="flex justify-center items-center min-h-screen">
@@ -115,15 +154,100 @@ const StudentList = () => {
     );
   }
 
+  const filteredStudents = students
+    .filter(student => {
+      const matchesCourse = selectedCourses.length === 0 || selectedCourses.includes(student.course_name);
+      const matchesYear = selectedAcademicYears.length === 0 || selectedAcademicYears.includes(student.academic_year_name);
+      const matchesSearch = student.student_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        student.student_number.toString().toLowerCase().includes(searchQuery.toLowerCase());
+      return matchesCourse && matchesYear && matchesSearch;
+    })
+    .sort((a, b) => {
+      if (!sortOption) return 0;
+
+      const [key, order] = sortOption.split('-');
+      if (order === 'asc') {
+        return a[key].toString().localeCompare(b[key].toString());
+      } else {
+        return b[key].toString().localeCompare(a[key].toString());
+      }
+    });
+
+  console.log('Filtered Students:', filteredStudents);
+
   return (
     <div className="max-w-7xl mx-auto mt-4 p-4 bg-white">
       <h3 className="text-center text-2xl font-semibold mb-2 text-gray-800">All Students</h3>
-      <button
-        onClick={downloadCSV}
-        className="mb-4 bg-green-500 text-white p-4 py-2 font-semibold hover:bg-green-600 transition"
-      >
-        Download  CSV
-      </button>
+
+      <div className="mb-4 flex items-end gap-4 ">
+        <div className="w-1/3">
+          <label className="block mb-2 font-semibold">Filter by Course:</label>
+          <div className="h-32 overflow-y-auto border border-gray-300 px-2">
+            {courses.map((course) => (
+              <div key={course.course_id}>
+                <input
+                  type="checkbox"
+                  value={course.course_name}
+                  checked={selectedCourses.includes(course.course_name)}
+                  onChange={handleCourseChange}
+                  className="mr-2"
+                />
+                <span>{course.course_name}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="w-1/3">
+          <label className="block mb-2 font-semibold">Filter by Academic Year:</label>
+          <div className="h-32 overflow-y-auto border border-gray-300 px-2">
+            {academicYears.map((year) => (
+              <div key={year.academic_year_id}>
+                <input
+                  type="checkbox"
+                  value={year.academic_year_name}
+                  checked={selectedAcademicYears.includes(year.academic_year_name)}
+                  onChange={handleYearChange}
+                  className="mr-2"
+                />
+                <span>{year.academic_year_name}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="w-1/3">
+          <label className="block mb-2 font-semibold">Sort By:</label>
+          <select
+            value={sortOption}
+            onChange={(e) => setSortOption(e.target.value)}
+            className="p-2 border border-gray-300 w-full"
+          >
+            <option value="">Sort By</option>
+            <option value="student_name-asc">Student Name (A-Z)</option>
+            <option value="student_name-desc">Student Name (Z-A)</option>
+            <option value="student_number-asc">Student Number (Ascending)</option>
+            <option value="student_number-desc">Student Number (Descending)</option>
+          </select>
+        </div>
+      </div>
+      
+      <div className="mb-4 flex justify-between items-center">
+        <input
+          type="text"
+          placeholder="Search by Name or Student Number"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          className="p-2 border border-gray-300 w-2/3"
+        />
+        <button
+          onClick={downloadCSV}
+          className="bg-green-500 text-white p-4 py-2 font-semibold hover:bg-green-600 transition"
+        >
+          Download CSV
+        </button>
+      </div>
+
       <div className="overflow-x-auto">
         <table className="min-w-full bg-white">
           <thead>
@@ -136,7 +260,7 @@ const StudentList = () => {
             </tr>
           </thead>
           <tbody>
-            {students.map((student, index) => (
+            {filteredStudents.map((student, index) => (
               <tr key={index} className="hover:bg-gray-100">
                 <td className="py-2 px-4 border-b border-gray-300">{student.student_name}</td>
                 <td className="py-2 px-4 border-b border-gray-300">{student.student_number}</td>
