@@ -35,7 +35,7 @@ const AssignmentCorrelation = () => {
     }
 
     return (
-        <div className="p-4 bg-red-100 border border-red-400 rounded-md my-4">
+        <div className="p-4 bg-red-100 border border-red-400 my-4">
             <h3 className="text-red-800 font-semibold">High Stress Alerts</h3>
             {correlations.length === 0 ? (
                 <p>No correlations found.</p>

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import StatisticsCard from './StatisticsCard';
 import DistributionPieChart from './DistributionPieChart';
 import MetricsOverTime from './MetricsOverTime';
-import MoodComparisonChart from './MoodComparisonChart'; 
+import MoodComparisonChart from './MoodComparisonChart';
 import { variables } from '../Variables';
 
 const StaffDashboard = () => {
@@ -112,7 +112,7 @@ const StaffDashboard = () => {
 
         {/* Distribution Charts Card */}
         <div className="p-4 border border-gray-300">
-  
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
             <DistributionPieChart data={courseYearDistribution} title="Course Year Distribution" />
             <DistributionPieChart data={courseDistribution} title="Course Distribution" />
@@ -120,35 +120,32 @@ const StaffDashboard = () => {
         </div>
 
         {/* Metrics Over Time Card */}
-        <div className="border border-gray-300">
-          <div className="h-96">
-          <MetricsOverTime selectedMetrics={selectedMetrics} />
-          </div>
-           
-        
-          <div className="flex space-x-2 mb-4">
-            {['mood', 'exercise', 'sleep', 'socialisation', 'productivity'].map((metric) => (
-              <label key={metric} className="inline-flex items-center">
-                <input
-                  type="checkbox"
-                  checked={selectedMetrics.includes(metric)}
-                  onChange={() => toggleMetricSelection(metric)}
-                  className="form-checkbox h-4 w-4"
-                />
-                <span className="ml-2 text-sm">{metric.charAt(0).toUpperCase() + metric.slice(1)}</span>
-              </label>
-            ))}
-          </div>
+        <div className="border border-gray-300" style={{ height: '500px' }}>
+    <div className="h-full flex flex-col">
+        <div className="flex-grow">
+            <MetricsOverTime selectedMetrics={selectedMetrics} />
         </div>
+        <div className="flex flex-wrap justify-center space-x-2 p-4">
+            {['mood', 'exercise', 'sleep', 'socialisation', 'productivity'].map((metric) => (
+                <label key={metric} className="inline-flex items-center">
+                    <input
+                        type="checkbox"
+                        checked={selectedMetrics.includes(metric)}
+                        onChange={() => toggleMetricSelection(metric)}
+                        className="form-checkbox h-4 w-4"
+                    />
+                    <span className="ml-2 text-sm">{metric.charAt(0).toUpperCase() + metric.slice(1)}</span>
+                </label>
+            ))}
+        </div>
+    </div>
+</div>
 
-
-
-        {/* Placeholder for Additional Information */}
         <div className="p-4 border border-gray-300">
-        <MoodComparisonChart />
+          <MoodComparisonChart />
         </div>
       </div>
-    </div>
+    </div >
   );
 };
 

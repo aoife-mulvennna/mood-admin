@@ -7,6 +7,7 @@ import StudentList from './StudentList';
 import StaffLogin from './Login/StaffLogin';
 import StaffLogout from './StaffLogout/StaffLogout';
 import StaffResources from './StaffResources/StaffResources';
+import StudentOptions from './StudentOptions'; 
 import ComposeEmail from './ComposeEmail';
 import StudentProfile from './StudentProfile';
 import Results from './Results/Results';
@@ -95,6 +96,7 @@ const Main = () => {
           <Route path="/write-email/:student_id" element={<ComposeEmail />} />
           <Route path="/results" element={<Results />} />
           <Route path="/" element={<LandingPage />} />
+          <Route path="/options" element={<StudentOptions />} /> {/* New route for options */}
         </Routes>
       </main>
     </div>

@@ -10,11 +10,11 @@ const LandingPage = () => {
 
   return (
     <div className="min-h-screen flex flex-col justify-center items-center bg-gray-100">
-      <div className="bg-white p-8 rounded-lg max-w-md w-full text-center">
+      <div className="bg-white p-8 max-w-md w-full text-center">
         <h1 className="text-3xl font-bold mb-6">Welcome to QUB Pulse Staff Portal</h1>
         <button
           onClick={handleLoginRedirect}
-          className="bg-green-600 text-white px-6 py-3 rounded-md font-semibold hover:bg-green-700 transition"
+          className="bg-green-600 text-white px-6 py-3 font-semibold hover:bg-green-700 transition"
         >
           Go to Login
         </button>

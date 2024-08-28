@@ -96,7 +96,7 @@ const ComposeEmail = () => {
   }
 
   return (
-    <div className="max-w-3xl mx-auto mt-12 p-6 bg-white rounded-lg">
+    <div className="max-w-3xl mx-auto mt-12 p-6 bg-white">
       <h3 className="text-center text-2xl font-semibold mb-6 text-gray-800">Compose Email to {student.student_name}</h3>
       {success && (
         <div className="text-green-500 text-center mb-4">{success}</div>
@@ -109,7 +109,7 @@ const ComposeEmail = () => {
             value={subject}
             onChange={(e) => setSubject(e.target.value)}
             required
-            className="w-full px-3 py-2 border border-gray-300 rounded-md"
+            className="w-full px-3 py-2 border border-gray-300"
           />
         </div>
         <div className="mb-4">
@@ -118,14 +118,14 @@ const ComposeEmail = () => {
             value={message}
             onChange={(e) => setMessage(e.target.value)}
             required
-            className="w-full px-3 py-2 border border-gray-300 rounded-md"
+            className="w-full px-3 py-2 border border-gray-300"
             rows="6"
           />
         </div>
         <div className="flex justify-center">
           <button
             type="submit"
-            className="bg-blue-500 text-white px-4 py-2 rounded-md font-semibold hover:bg-blue-600 transition"
+            className="bg-blue-500 text-white px-4 py-2 font-semibold hover:bg-blue-600 transition"
           >
             Send Email
           </button>

@@ -336,7 +336,7 @@ const Results = () => {
                 <select
                     value={selectedYear1}
                     onChange={(e) => handleYearChange(e, setSelectedYear1)}
-                    className="border p-2 rounded"
+                    className="border p-2"
                 >
                     <option value="">Select Year 1</option>
                     {academicYears.map((year) => (
@@ -348,7 +348,7 @@ const Results = () => {
                 <select
                     value={selectedYear2}
                     onChange={(e) => handleYearChange(e, setSelectedYear2)}
-                    className="border p-2 rounded"
+                    className="border p-2"
                 >
                     <option value="">Select Year 2</option>
                     {academicYears.map((year) => (
@@ -391,7 +391,7 @@ const Results = () => {
                 <select
                     value={selectedCourse1}
                     onChange={(e) => handleCourseChange(e, setSelectedCourse1)}
-                    className="border p-2 rounded"
+                    className="border p-2"
                 >
                     <option value="">Select Course 1</option>
                     {courses.map((course) => (
@@ -403,7 +403,7 @@ const Results = () => {
                 <select
                     value={selectedCourse2}
                     onChange={(e) => handleCourseChange(e, setSelectedCourse2)}
-                    className="border p-2 rounded"
+                    className="border p-2"
                 >
                     <option value="">Select Course 2</option>
                     {courses.map((course) => (
