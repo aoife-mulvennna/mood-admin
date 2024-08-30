@@ -7,7 +7,7 @@ import StudentList from './StudentList';
 import StaffLogin from './Login/StaffLogin';
 import StaffLogout from './StaffLogout/StaffLogout';
 import StaffResources from './StaffResources/StaffResources';
-import StudentOptions from './StudentOptions'; 
+import StudentOptions from './StudentOptions';
 import ComposeEmail from './ComposeEmail';
 import StudentProfile from './StudentProfile';
 import Results from './Results/Results';
@@ -32,29 +32,33 @@ const Main = () => {
   const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
 
   return (
-    <div className="min-h-screen bg-gray-100 text-gray-900">
+    <div className="bg-gray-100 text-gray-900">
       {showTopBar && token && (
-        <header className="bg-gray-800 text-white flex justify-between items-center p-4">
+        <header className="bg-gray-800 text-white flex justify-between items-center px-4 h-20">
           <div className="flex items-center space-x-4">
-            <img src={qubLogo} className="h-12" alt="QUB Logo" />
+            <img src={qubLogo} className="w-32 h-auto mr-2 mt-3" alt="QUB Logo" />
             <span className="text-xl font-bold">QUB Student Pulse - Staff</span>
           </div>
-          <nav className="space-x-4">
-            <NavLink className={({ isActive }) => isActive ? 'text-white font-semibold' : 'text-gray-300 hover:text-white'} to="/staffdashboard">
-              Dashboard
-            </NavLink>
-            <NavLink className={({ isActive }) => isActive ? 'text-white font-semibold' : 'text-gray-300 hover:text-white'} to="/studentlist">
-              Students
-            </NavLink>
-            <NavLink className={({ isActive }) => isActive ? 'text-white font-semibold' : 'text-gray-300 hover:text-white'} to="/results">
-              Results
-            </NavLink>
-            <NavLink className={({ isActive }) => isActive ? 'text-white font-semibold' : 'text-gray-300 hover:text-white'} to="/staffresources">
-              Resources
-            </NavLink>
-            <NavLink className="text-gray-300 hover:text-white" to="/stafflogout">
-              Logout
-            </NavLink>
+          <nav className="flex-1 flex justify-between items-center ml-8">
+            <div className="flex space-x-4">
+              <NavLink className={({ isActive }) => isActive ? 'text-white font-semibold bg-gray-700 px-4 py-2' : 'text-gray-200 bg-gray-600 font-semibold px-4 py-2 hover:text-white '} to="/staffdashboard">
+                Dashboard
+              </NavLink>
+              <NavLink className={({ isActive }) => isActive ? 'text-white font-semibold bg-gray-700 px-4 py-2' : 'text-gray-200 bg-gray-600 font-semibold px-4 py-2 hover:text-white'} to="/studentlist">
+                Students
+              </NavLink>
+              <NavLink className={({ isActive }) => isActive ? 'text-white font-semibold bg-gray-700 px-4 py-2' : 'text-gray-200 bg-gray-600 font-semibold px-4 py-2 hover:text-white'} to="/results">
+                Results
+              </NavLink>
+              <NavLink className={({ isActive }) => isActive ? 'text-white font-semibold bg-gray-700 px-4 py-2' : 'text-gray-200 bg-gray-600 font-semibold px-4 py-2 hover:text-white'} to="/staffresources">
+                Resources
+              </NavLink>
+            </div>
+            <div className="flex space-x-4">
+              <NavLink className="bg-gray-700 text-gray-200 hover:bg-gray-800 hover:text-white font-semibold px-4 py-2" to="/stafflogout">
+                Logout
+              </NavLink>
+            </div>
           </nav>
           <button className="lg:hidden text-white" onClick={toggleSidebar}>
             <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">

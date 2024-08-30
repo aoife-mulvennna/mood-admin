@@ -82,9 +82,10 @@ const MetricsOverTime = ({ selectedMetrics }) => {
                                     data: filteredData,
                                     borderColor: `hsl(${index * 60}, 70%, 50%)`,
                                     backgroundColor: `hsla(${index * 60}, 70%, 50%, 0.5)`,
-                                    pointRadius: 0,
-                                    pointHoverRadius: 0,
+                                    pointRadius: 3, // Increase the point radius for better visibility
+                                    pointHoverRadius: 6, // Increase hover effect
                                     fill: false,
+                                    tension: 0.4, // Smooth the line curves
                                 },
                                 {
                                     label: `${metric.charAt(0).toUpperCase() + metric.slice(1)} Average`,
@@ -151,6 +152,26 @@ const MetricsOverTime = ({ selectedMetrics }) => {
             legend: {
                 display: true,
                 position: 'top',
+                labels: {
+                    usePointStyle: true,
+                    boxWidth: 10,
+                },
+            },
+            title: {
+                display: false,
+                text: 'Metrics Over Time',
+                font: {
+                    size: 18,
+                },
+            },
+            tooltip: {
+                mode: 'index',
+                intersect: false,
+            },
+        },
+        elements: {
+            line: {
+                tension: 0.4, // Smoothing of line curves
             },
         },
     };
@@ -161,7 +182,10 @@ const MetricsOverTime = ({ selectedMetrics }) => {
 
     return (
         <div className="w-full" style={{ height: '400px' }}>
-            <div className="flex justify-center mb-4">
+         <h5 className="text-lg font-semibold theme-primary-text flex items-center border-b theme-border pb-2 justify-center">Wellness Trends Averaged for All Students</h5>
+            <Line data={chartData} options={options} />
+            <div className="flex justify-center">
+
                 <label className="mr-4">
                     <input
                         type="radio"
@@ -191,7 +215,6 @@ const MetricsOverTime = ({ selectedMetrics }) => {
                 </label>
             </div>
 
-            <Line data={chartData} options={options} />
         </div>
     );
 };
