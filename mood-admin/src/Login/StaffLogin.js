@@ -59,9 +59,14 @@ const StaffLogin = () => {
             <label className="block text-m font-medium text-gray-700">Staff Number</label>
             <input
               type="text"
-              pattern="\d*"
               value={staffNumber}
-              onChange={(e) => setStaffNumber(e.target.value)}
+              onChange={(e) => {
+                // Ensure only digits are allowed
+                const value = e.target.value;
+                if (/^\d*$/.test(value)) {
+                  setStaffNumber(value);
+                }
+              }}
               required
               className="mt-1 block w-full px-3 py-2 border border-gray-300 focus:outline-none focus:ring-red-500 focus:border-red-500 sm:text-sm"
             />

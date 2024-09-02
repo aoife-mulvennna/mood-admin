@@ -12,6 +12,7 @@ import ComposeEmail from './ComposeEmail';
 import StudentProfile from './StudentProfile';
 import Results from './Results/Results';
 import LandingPage from './LandingPage';
+import PrivateRoute from './PrivateRoute';
 
 function App() {
   return (
@@ -90,17 +91,19 @@ const Main = () => {
       </aside>
 
       <main className="p-6">
-        <Routes>
+      <Routes>
           <Route path="/stafflogin" element={<StaffLogin />} />
-          <Route path="/staffdashboard" element={<StaffDashboard />} />
-          <Route path="/studentlist" element={<StudentList />} />
-          <Route path="/staffresources" element={<StaffResources />} />
-          <Route path="/student-profile/:student_id" element={<StudentProfile />} />
-          <Route path="/stafflogout" element={<StaffLogout />} />
-          <Route path="/write-email/:student_id" element={<ComposeEmail />} />
-          <Route path="/results" element={<Results />} />
           <Route path="/" element={<LandingPage />} />
-          <Route path="/options" element={<StudentOptions />} /> {/* New route for options */}
+
+          {/* Private Routes */}
+          <Route path="/staffdashboard" element={<PrivateRoute element={<StaffDashboard />} />} />
+          <Route path="/studentlist" element={<PrivateRoute element={<StudentList />} />} />
+          <Route path="/staffresources" element={<PrivateRoute element={<StaffResources />} />} />
+          <Route path="/student-profile/:student_id" element={<PrivateRoute element={<StudentProfile />} />} />
+          <Route path="/stafflogout" element={<PrivateRoute element={<StaffLogout />} />} />
+          <Route path="/write-email/:student_id" element={<PrivateRoute element={<ComposeEmail />} />} />
+          <Route path="/results" element={<PrivateRoute element={<Results />} />} />
+          <Route path="/options" element={<PrivateRoute element={<StudentOptions />} />} /> {/* Protected route for options */}
         </Routes>
       </main>
     </div>

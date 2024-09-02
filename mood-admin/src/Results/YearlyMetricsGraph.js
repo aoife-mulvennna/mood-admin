@@ -12,6 +12,7 @@ import {
 import { Line } from 'react-chartjs-2';
 import { variables } from '../Variables';
 import './Results.css'
+
 ChartJS.register(
     CategoryScale,
     LinearScale,
@@ -70,17 +71,23 @@ const YearlyMetricsGraph = ({ academicYear }) => {
         return <div>No data available for {academicYear}</div>;
     }
 
+    // Calculate the date 30 days ago
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+    // Filter the data to only include records from the last 30 days
+    const filteredData = data.filter(record => new Date(record.date) >= thirtyDaysAgo);
+
     const chartData = (metric) => {
         return {
-            labels: data.map(record => record.date),
+            labels: filteredData.map(record => record.date),
             datasets: [{
                 label: metric,
-                data: data.map(record => record[metric]),
+                data: filteredData.map(record => record[metric]),
                 fill: false,
                 borderColor: 'rgba(75,192,192,1)',
                 tension: 0.1,
                 radius: 0,
-           
             }]
         };
     };
@@ -96,7 +103,7 @@ const YearlyMetricsGraph = ({ academicYear }) => {
         scales: {
             x: {
                 type: 'category',
-                labels: data.map(record => record.date),
+                labels: filteredData.map(record => record.date),
                 ticks: {
                     autoSkip: true,
                     maxTicksLimit: 10,
