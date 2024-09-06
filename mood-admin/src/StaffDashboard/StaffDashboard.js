@@ -8,7 +8,8 @@ import { variables } from '../Variables';
 const StaffDashboard = () => {
   const [academicYears, setAcademicYears] = useState([]);
   const [courses, setCourses] = useState([]);
-  const [selectedMetrics, setSelectedMetrics] = useState(['mood', 'exercise']);
+  const [selectedMetrics, setSelectedMetrics] = useState(['mood']);
+  const [selectedRange, setSelectedRange] = useState('7_days');
   const [totalStudents, setTotalStudents] = useState(0);
   const [studentsRecordedToday, setStudentsRecordedToday] = useState(0);
   const [courseYearDistribution, setCourseYearDistribution] = useState({ labels: [], datasets: [] });
@@ -98,6 +99,10 @@ const StaffDashboard = () => {
     );
   };
 
+  const handleRangeChange = (e) => {
+    setSelectedRange(e.target.value); // Update selectedRange on the dashboard
+  };
+
   return (
     <div className="space-y-8 p-4">
       <h1 className="text-2xl font-bold mb-6">Staff Dashboard</h1>
@@ -120,26 +125,60 @@ const StaffDashboard = () => {
         </div>
 
         {/* Metrics Over Time Card */}
-        <div className="border border-gray-300" style={{ height: '500px' }}>
-    <div className="h-full flex flex-col">
-        <div className="flex-grow">
-            <MetricsOverTime selectedMetrics={selectedMetrics} />
-        </div>
-        <div className="flex flex-wrap justify-center space-x-2 p-4">
-            {['mood', 'exercise', 'sleep', 'socialisation', 'productivity'].map((metric) => (
+        <div className="p-4 border border-gray-300" >
+          <div className="h-full flex flex-col">
+            <div className="flex-grow mb-8 ">
+              <MetricsOverTime selectedMetrics={selectedMetrics} selectedRange={selectedRange} />
+            </div>
+            <div className="flex flex-wrap justify-center space-x-2 p-4 mt-2">
+              {['mood', 'exercise', 'sleep', 'socialisation', 'productivity'].map((metric) => (
                 <label key={metric} className="inline-flex items-center">
-                    <input
-                        type="checkbox"
-                        checked={selectedMetrics.includes(metric)}
-                        onChange={() => toggleMetricSelection(metric)}
-                        className="form-checkbox h-4 w-4"
-                    />
-                    <span className="ml-2 text-sm">{metric.charAt(0).toUpperCase() + metric.slice(1)}</span>
+                  <input
+                    type="checkbox"
+                    checked={selectedMetrics.includes(metric)}
+                    onChange={() => toggleMetricSelection(metric)}
+                    className="form-checkbox h-4 w-4"
+                  />
+                  <span className="ml-2 text-sm">{metric.charAt(0).toUpperCase() + metric.slice(1)}</span>
                 </label>
-            ))}
+              ))}
+
+              <div className="flex justify-center mt-4">
+                <label className="mr-4">
+                  <input
+                    type="radio"
+                    name="date_range"
+                    value="7_days"
+                    checked={selectedRange === '7_days'}
+                    onChange={handleRangeChange}
+                  />
+                  Last 7 Days
+                </label>
+                <label className="mr-4">
+                  <input
+                    type="radio"
+                    name="date_range"
+                    value="1_month"
+                    checked={selectedRange === '1_month'}
+                    onChange={handleRangeChange}
+                  />
+                  Last Month
+                </label>
+                <label>
+                  <input
+                    type="radio"
+                    name="date_range"
+                    value="1_year"
+                    checked={selectedRange === '1_year'}
+                    onChange={handleRangeChange}
+                  />
+                  Last Year
+                </label>
+              </div>
+            </div>
+          </div>
         </div>
-    </div>
-</div>
+
 
         <div className="p-4 border border-gray-300">
           <MoodComparisonChart />

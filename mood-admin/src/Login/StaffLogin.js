@@ -105,7 +105,7 @@ const StaffLogin = () => {
             </button>
           </div>
           <div className="text-center mt-4">
-            <Link to="/forgot-password" className="text-m text-gray-600 hover:underline">
+            <Link to="/forgot-staff-password" className="text-m text-gray-600 hover:underline">
               Forgot your password? Click here to reset it.
             </Link>
           </div>

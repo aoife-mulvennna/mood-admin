@@ -16,7 +16,10 @@ const MoodComparisonChart = () => {
                 });
                 const data = await response.json();
 
+                const currentYear = new Date().getFullYear();
+                const lastYear = currentYear - 1;
                 // Process the data to structure it for the chart
+
                 const labels = data.map(item => item.month);
                 const lastYearData = data.map(item => item.lastYearMood);
                 const thisYearData = data.map(item => item.thisYearMood);
@@ -25,12 +28,12 @@ const MoodComparisonChart = () => {
                     labels,
                     datasets: [
                         {
-                            label: 'Last Year',
+                            label: `${lastYear}`,
                             data: lastYearData,
                             backgroundColor: 'rgba(75, 192, 192, 0.6)',
                         },
                         {
-                            label: 'This Year',
+                            label: `${currentYear}`,
                             data: thisYearData,
                             backgroundColor: 'rgba(153, 102, 255, 0.6)',
                         },
@@ -52,12 +55,28 @@ const MoodComparisonChart = () => {
             },
             title: {
                 display: true,
-                text: 'Monthly Mood Comparison: Last Year vs This Year',
             },
+        },
+        scales:{
+            x:{
+                ticks: {
+                    stepSize: 1, // Set the step size to 1 day
+                },
+            }
+        
         },
     };
 
-    return <Bar data={chartData} options={options} />;
+    const currentYear = new Date().getFullYear();
+    const lastYear = currentYear - 1;
+    return (
+      
+    <div className="w-full" style={{ height: '500px' }}>
+    <h5 className="text-lg font-semibold theme-primary-text flex items-center border-b theme-border pb-2 justify-center"> Comparison of Mood Averages {lastYear} vs {currentYear}
+    </h5>
+    <Bar data={chartData} options={options} />
+    </div>
+    )
 };
 
 export default MoodComparisonChart;

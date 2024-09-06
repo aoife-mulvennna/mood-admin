@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Line } from 'react-chartjs-2';
-import { variables } from '../Variables';
+import { variables } from './Variables';
 import {
     Chart as ChartJS,
     TimeScale,
@@ -13,7 +13,6 @@ import {
 } from 'chart.js';
 import 'chartjs-adapter-date-fns';
 
-// Register the necessary Chart.js components
 ChartJS.register(
     TimeScale,
     LinearScale,
@@ -24,29 +23,21 @@ ChartJS.register(
     Legend
 );
 
-const generateDateRange = (startDate, endDate) => {
-    const dateArray = [];
-    let currentDate = new Date(startDate);
-    while (currentDate <= new Date(endDate)) {
-        dateArray.push(new Date(currentDate));
-        currentDate.setDate(currentDate.getDate() + 1);
-    }
-    return dateArray;
-};
-
-const MetricsOverTime = ({ selectedMetrics, selectedRange }) => {
+const StudentMetricsOverTime = ({ studentId, selectedMetrics, setSelectedMetrics }) => {
     const [chartData, setChartData] = useState({ datasets: [] });
+    const [selectedRange, setSelectedRange] = useState('7_days');
 
     useEffect(() => {
         if (selectedMetrics.length > 0) {
             const metricsQuery = selectedMetrics.join(',');
-            fetch(`${variables.API_URL}aggregated-data?metrics=${metricsQuery}`, {
+            fetch(`${variables.API_URL}student-aggregated-data/${studentId}?metrics=${metricsQuery}`, {
                 headers: {
                     Authorization: `Bearer ${sessionStorage.getItem('token')}`,
                 },
             })
                 .then((res) => res.json())
                 .then((data) => {
+                    console.log('Fetched student metrics data:', data);
                     if (data && data.data) {
                         const processedData = {};
                         data.data.forEach((entry) => {
@@ -64,7 +55,8 @@ const MetricsOverTime = ({ selectedMetrics, selectedRange }) => {
                             });
                         });
 
-                        const datasets = selectedMetrics.flatMap((metric, index) => {
+                        const datasets = selectedMetrics.map((metric, index) => {
+                            
                             const filteredData = filterDataByRange(
                                 Object.keys(processedData).map((date) => ({
                                     x: new Date(date),
@@ -73,45 +65,27 @@ const MetricsOverTime = ({ selectedMetrics, selectedRange }) => {
                                 selectedRange
                             );
 
-                            const average = filteredData.reduce((sum, dataPoint) => sum + dataPoint.y, 0) / filteredData.length;
-
-                            return [
-                                {
-                                    label: metric.charAt(0).toUpperCase() + metric.slice(1),
-                                    data: filteredData,
-                                    borderColor: `hsl(${index * 60}, 70%, 50%)`,
-                                    backgroundColor: `hsla(${index * 60}, 70%, 50%, 0.5)`,
-                                    pointRadius: 3, // Increase the point radius for better visibility
-                                    pointHoverRadius: 6, // Increase hover effect
-                                    fill: false,
-                                    tension: 0.4, // Smooth the line curves
-                                    
-                                },
-                                {
-                                    label: `${metric.charAt(0).toUpperCase() + metric.slice(1)} Average`,
-                                    data: filteredData.map((dataPoint) => ({
-                                        x: dataPoint.x,
-                                        y: average,
-                                    })),
-                                    borderColor: `hsl(${index * 60}, 70%, 50%)`,
-                                    borderDash: [5, 5],
-                                    pointRadius: 0,
-                                    pointHoverRadius: 0,
-                                    fill: false,
-                                  
-                                },
-                            ];
+                            return {
+                                label: metric.charAt(0).toUpperCase() + metric.slice(1),
+                                data: filteredData,
+                                borderColor: `hsl(${index * 60}, 70%, 50%)`,
+                                backgroundColor: `hsla(${index * 60}, 70%, 50%, 0.5)`,
+                                pointRadius: 2,
+                                pointHoverRadius: 4,
+                                fill: false,
+                                tension: 0.4,
+                            };
                         });
                         setChartData({ datasets });
                     } else {
                         setChartData({ datasets: [] });
                     }
                 })
-                .catch((err) => console.error('Error fetching aggregated data:', err));
+                .catch((err) => console.error('Error fetching student metrics data:', err));
         } else {
             setChartData({ datasets: [] });
         }
-    }, [selectedMetrics, selectedRange]);
+    }, [studentId, selectedMetrics, selectedRange]);
 
     const filterDataByRange = (data, range) => {
         const now = new Date();
@@ -145,8 +119,11 @@ const MetricsOverTime = ({ selectedMetrics, selectedRange }) => {
             },
             y: {
                 beginAtZero: false,
-                min: 1, // Set minimum value for Y-axis
-                max: 5, // Set maximum value for Y-axis
+                min: 1,
+                max: 5,
+                ticks: {
+                    stepSize: 1
+                  }
             },
         },
         plugins: {
@@ -172,17 +149,76 @@ const MetricsOverTime = ({ selectedMetrics, selectedRange }) => {
         },
         elements: {
             line: {
-                tension: 0.4, // Smoothing of line curves
+                tension: 0.4,
             },
         },
     };
 
+    const handleRangeChange = (e) => {
+        setSelectedRange(e.target.value);
+    };
+
+    const handleMetricChange = (metric) => {
+        setSelectedMetrics((prevMetrics) =>
+            prevMetrics.includes(metric)
+                ? prevMetrics.filter((m) => m !== metric)
+                : [...prevMetrics, metric]
+        );
+    };
+
     return (
-        <div className="w-full" style={{ height: '400px' }}>
-            <h5 className="text-lg font-semibold theme-primary-text flex items-center border-b theme-border pb-2 justify-center">Wellness Trends Averaged for All Students</h5>
-            <Line data={chartData} options={options} />
+        <div className="bg-gray-100 p-4 ">
+            <div className="flex flex-col justify-center mt-4 space-y-4 justify-between">
+                <div className="flex-1 w-full h-64">
+                    <Line data={chartData} options={options} className="w-full h-full"/>
+                </div>
+                <div className="flex justify-center space-x-4">
+
+                    {['mood', 'exercise', 'sleep', 'socialisation', 'productivity'].map((metric) => (
+                        <label key={metric} className="flex items-center">
+                            <input
+                                type="checkbox"
+                                value={metric}
+                                checked={selectedMetrics.includes(metric)}
+                                onChange={() => handleMetricChange(metric)}
+                                className="form-checkbox h-5 w-5 text-blue-600"
+                            />
+                            <span className="ml-2 capitalize">{metric}</span>
+                        </label>
+                    ))}
+                </div>
+                <div className="flex justify-center space-x-4">
+                    <label className="mr-4">
+                        <input
+                            type="radio"
+                            value="7_days"
+                            checked={selectedRange === '7_days'}
+                            onChange={handleRangeChange}
+                        />
+                        Last 7 Days
+                    </label>
+                    <label className="mr-4">
+                        <input
+                            type="radio"
+                            value="1_month"
+                            checked={selectedRange === '1_month'}
+                            onChange={handleRangeChange}
+                        />
+                        Last Month
+                    </label>
+                    <label>
+                        <input
+                            type="radio"
+                            value="1_year"
+                            checked={selectedRange === '1_year'}
+                            onChange={handleRangeChange}
+                        />
+                        Last Year
+                    </label>
+                </div>
+            </div>
         </div>
     );
 };
 
-export default MetricsOverTime;
+export default StudentMetricsOverTime;

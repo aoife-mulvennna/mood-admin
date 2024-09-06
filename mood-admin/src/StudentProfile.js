@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { variables } from './Variables';
-import MetricsOverTime from './StaffDashboard/MetricsOverTime';
+import StudentMetricsOverTime from './StudentMetricsOverTime';
 
 const StudentProfile = () => {
   const { student_id } = useParams();
@@ -46,6 +46,10 @@ const StudentProfile = () => {
         ? prevMetrics.filter((m) => m !== metric)
         : [...prevMetrics, metric]
     );
+  };
+
+  const handleBackToStudentList = () => {
+    navigate('/studentlist');
   };
 
   const handleSendEmail = () => {
@@ -112,15 +116,48 @@ const StudentProfile = () => {
   const daysSinceLastAssignment = calculateDaysSinceLastAssignment(student.last_assignment_deadline);
 
   return (
-    <div className="flex min-h-screen bg-gray-100 ">
-      <div className="max-w-3xl mx-auto mt-12 p-6 bg-white flex-grow">
-        <h3 className="text-center text-2xl font-semibold mb-6 text-gray-800">Student Profile</h3>
-        <div className="flex justify-between items-start mb-4">
+    <div className="">
+      <div className="max-w-7xl mx-auto mt-4 p-4 bg-white">
+      <div className="flex justify-between items-center mb-6">
+          {/* Left column: Back button */}
+          <div className="flex-1">
+          <button
+  onClick={handleBackToStudentList}
+  className="bg-gray-500 text-white px-4 py-2 font-semibold hover:bg-gray-600 transition flex items-center"
+>
+  <span className="mr-2">
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="w-6 h-6">
+      <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" />
+    </svg>
+  </span>
+  <span>Go Back</span>
+</button>
+
+          </div>
+
+          {/* Center column: Title */}
+          <div className="flex-1 text-center">
+            <h3 className="text-2xl font-semibold text-gray-800">Student Profile</h3>
+          </div>
+
+          {/* Right column: Send Email button */}
+          <div className="flex-1 text-right">
+            <button
+              onClick={handleSendEmail}
+              className="bg-blue-500 text-white px-4 py-2 font-semibold hover:bg-blue-600 transition"
+            >
+              Send Email
+            </button>
+          </div>
+        </div>
+
+      
+        <div className="flex justify-between mb-4 ml-64">
           <div>
             <p><strong>Name:</strong> {student.student_name}</p>
-            <p><strong>Number:</strong> {student.student_number}</p>
+            <p><strong>Student Number:</strong> {student.student_number}</p>
             <p><strong>Email:</strong> {student.student_email}</p>
-            <p><strong>Course:</strong> {student.course_name}</p>
+            <p><strong>Course Name:</strong> {student.course_name}</p>
             <p><strong>Academic Year:</strong> {student.academic_year_name}</p>
             <p><strong>Last Recording:</strong> {student.last_recording_date ? new Date(student.last_recording_date).toLocaleDateString() : 'No record'}</p>
             {daysUntilNextAssignment !== null && (
@@ -130,12 +167,7 @@ const StudentProfile = () => {
               <p><strong>Last Assignment:</strong> {daysSinceLastAssignment} day(s) ago</p>
             )}
           </div>
-          <button
-            onClick={handleSendEmail}
-            className="bg-blue-500 text-white px-4 py-2 font-semibold hover:bg-blue-600 transition"
-          >
-            Send Email
-          </button>
+       
         </div>
 
         {/* 7-Day Average Stats */}
@@ -160,24 +192,14 @@ const StudentProfile = () => {
         </div>
 
         {/* Metrics Over the Last 30 Days */}
-        <div className="bg-gray-100 p-4 mt-6">
-          <h4 className="text-xl font-semibold mb-4 text-center">Metrics Over the Last 30 Days</h4>
-          <MetricsOverTime selectedMetrics={selectedMetrics} data={student.metrics} />
-          <h4 className="text-xl font-semibold mb-4 text-center">Select Metrics to Display</h4>
-          <div className="grid grid-cols-2 gap-4">
-            {['mood', 'exercise', 'sleep', 'socialisation', 'productivity'].map((metric) => (
-              <label key={metric} className="flex items-center">
-                <input
-                  type="checkbox"
-                  value={metric}
-                  checked={selectedMetrics.includes(metric)}
-                  onChange={() => handleMetricChange(metric)}
-                  className="form-checkbox h-5 w-5 text-blue-600"
-                />
-                <span className="ml-2 capitalize">{metric}</span>
-              </label>
-            ))}
-          </div>
+       {/* Metrics Over the Last 30 Days */}
+       <div className="bg-gray-100 p-4 mt-6">
+          <h4 className="text-xl font-semibold mb-4 text-center">Analysis of Student Well-being Over Time</h4>
+          <StudentMetricsOverTime
+            studentId={student_id}
+            selectedMetrics={selectedMetrics}
+            setSelectedMetrics={setSelectedMetrics} // Pass this down to allow metric selection
+          />
         </div>
       </div>
     </div>

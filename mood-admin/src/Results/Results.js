@@ -3,7 +3,6 @@ import { variables } from '../Variables';
 import ExportCSVButton from '../ExportCSV';
 import YearlyMetricsGraph from './YearlyMetricsGraph';
 import CourseMetricsGraph from './CourseMetricsGraph';
-import AssignmentCorrelation from './AssignmentCorrelation';
 import ConcerningCohorts from './ConcerningCohorts';
 import { Bar } from 'react-chartjs-2';
 import {
@@ -20,6 +19,8 @@ ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend)
 
 
 const Results = () => {
+    const yearOrder = ['First', 'Second', 'Third', 'Fourth', 'Fifth', 'Placement', 'Postgraduate'];
+
     const [yearAverages, setYearAverages] = useState([]);
     const [courseAverages, setCourseAverages] = useState([]);
     const [tagStatistics, setTagStatistics] = useState([]);
@@ -233,6 +234,12 @@ const Results = () => {
         maintainAspectRatio: false,
     };
     const chartHeight = Math.max(400, tagStatistics.length * 50);
+
+    const sortedYearAverages = yearAverages.sort((a, b) => {
+        // Sort according to the predefined order
+        return yearOrder.indexOf(a.academic_year_name) - yearOrder.indexOf(b.academic_year_name);
+    });
+
 
     return (
 

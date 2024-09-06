@@ -92,14 +92,12 @@ const StudentList = () => {
     if (moodTrend === 'no record' || moodAverage === 'no record') {
         return <span>No record</span>;
     } else if (moodTrend > 0 || (moodTrend === 0 && moodAverage >= 3)) {
-        // Green smiley face if mood is improving or if mood trend is 0 and 7-day average is 3 or more
         return (
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="w-6 h-6 text-green-500">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M15.182 15.182a4.5 4.5 0 0 1-6.364 0M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0ZM9.75 9.75c0 .414-.168.75-.375.75S9 10.164 9 9.75 9.168 9 9.375 9s.375.336.375.75Zm-.375 0h.008v.015h-.008V9.75Zm5.625 0c0 .414-.168.75-.375.75s-.375-.336-.375-.75.168-.75.375-.75.375.336.375.75Zm-.375 0h.008v.015h-.008V9.75Z" />
             </svg>
         );
     } else if (moodTrend < 0 || (moodTrend === 0 && moodAverage < 3)) {
-        // Red sad face if mood trend is negative or if mood trend is 0 and 7-day average is less than 3
         return (
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="w-6 h-6 text-red-500">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M15.182 16.318A4.486 4.486 0 0 0 12.016 15a4.486 4.486 0 0 0-3.198 1.318M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0ZM9.75 9.75c0 .414-.168.75-.375.75S9 10.164 9 9.75 9.168 9 9.375 9s.375.336.375.75Zm-.375 0h.008v.015h-.008V9.75Zm5.625 0c0 .414-.168.75-.375.75s-.375-.336-.375-.75.168-.75.375-.75.375.336.375.75Zm-.375 0h.008v.015h-.008V9.75Z" />
@@ -110,7 +108,6 @@ const StudentList = () => {
 
   const downloadCSV = () => {
     const token = sessionStorage.getItem('token');
-
     fetch(`${variables.API_URL}export-studentlist-csv`, {
       method: 'GET',
       headers: {
@@ -128,8 +125,6 @@ const StudentList = () => {
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-
-        // Get the current date and time to include in the filename
         const currentDateTime = new Date().toISOString().slice(0, 19).replace(/[-:T]/g, '');
         a.download = `StudentList_${currentDateTime}.csv`;
 
@@ -159,23 +154,52 @@ const StudentList = () => {
   }
 
   const filteredStudents = students
-    .filter(student => {
-      const matchesCourse = selectedCourses.length === 0 || selectedCourses.includes(student.course_name);
-      const matchesYear = selectedAcademicYears.length === 0 || selectedAcademicYears.includes(student.academic_year_name);
-      const matchesSearch = student.student_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        student.student_number.toString().toLowerCase().includes(searchQuery.toLowerCase());
-      return matchesCourse && matchesYear && matchesSearch;
-    })
-    .sort((a, b) => {
-      if (!sortOption) return 0;
-
+  .filter(student => {
+    const matchesCourse = selectedCourses.length === 0 || selectedCourses.includes(student.course_name);
+    const matchesYear = selectedAcademicYears.length === 0 || selectedAcademicYears.includes(student.academic_year_name);
+    const matchesSearch = student.student_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      student.student_number.toString().toLowerCase().includes(searchQuery.toLowerCase());
+    return matchesCourse && matchesYear && matchesSearch;
+  })
+  .sort((a, b) => {
+    // If a sorting option is selected, prioritize it over mood trend sorting
+    if (sortOption) {
       const [key, order] = sortOption.split('-');
-      if (order === 'asc') {
-        return a[key].toString().localeCompare(b[key].toString());
+
+      // Handle undefined or missing keys
+      if (a[key] === undefined || b[key] === undefined) return 0;
+
+      // Sort strings alphabetically
+      if (typeof a[key] === 'string' && typeof b[key] === 'string') {
+        if (order === 'asc') {
+          return a[key].toLowerCase().localeCompare(b[key].toLowerCase());
+        } else {
+          return b[key].toLowerCase().localeCompare(a[key].toLowerCase());
+        }
       } else {
-        return b[key].toString().localeCompare(a[key].toString());
+        // Numeric sorting
+        if (order === 'asc') {
+          return a[key] - b[key];
+        } else {
+          return b[key] - a[key];
+        }
       }
-    });
+    }
+
+    // If no sortOption is selected, fallback to trend-based sorting
+    const aHasTrend = a.moodTrend !== 'no record';
+    const bHasTrend = b.moodTrend !== 'no record';
+    
+    if (a.moodTrend < 0 && b.moodTrend >= 0) return -1;
+    if (b.moodTrend < 0 && a.moodTrend >= 0) return 1;
+    
+    if (aHasTrend && !bHasTrend) return -1;
+    if (!aHasTrend && bHasTrend) return 1;
+
+    return 0; // If all else is equal, do nothing
+  });
+
+
 
   console.log('Filtered Students:', filteredStudents);
 

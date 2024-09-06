@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import { variables } from '../Variables';
 
 const ConcerningCohorts = () => {
-    const [isConcerning, setIsConcerning] = useState(false);
     const [concerningCohorts, setConcerningCohorts] = useState([]);
 
     useEffect(() => {
@@ -17,8 +16,6 @@ const ConcerningCohorts = () => {
                     throw new Error('Failed to fetch concerning cohorts');
                 }
                 const data = await response.json();
-                console.log('Fetched Data:', data);
-                setIsConcerning(data.isConcerning);
                 setConcerningCohorts(data.concerningCohorts || []);
             } catch (error) {
                 console.error('Error fetching concerning cohorts:', error);
@@ -27,8 +24,8 @@ const ConcerningCohorts = () => {
         fetchData();
     }, []);
 
-    if (!isConcerning) {
-        return null;
+    if (concerningCohorts.length === 0) {
+        return <p>No concerning cohorts identified.</p>;  // Handle case when no cohorts are concerning
     }
 
     const formatList = (items) => {
@@ -52,21 +49,19 @@ const ConcerningCohorts = () => {
 
                 return (
                     <div key={index} className="mt-4">
-                        <p className="font-semibold">{cohort.academicYear} Year {cohort.courseName} </p>
+                        <p className="font-semibold">{cohort.academicYear} Year {cohort.courseName}</p>
                         <div>
-                            {concerns.length > 0 ? (
+                            {concerns.length > 0 && (
                                 <p>
-                                    Experiencing{" "}
-                                    {formatList(concerns)}
+                                    Experiencing {formatList(concerns)}
                                 </p>
-                            ) : null}
+                            )}
                             {cohort.frequentTags && cohort.frequentTags.length > 0 && (
                                 <p>Common tags: {formatList(cohort.frequentTags)}</p>
                             )}
                             {cohort.earliestAssignment && (
                                 <p>Upcoming assignment on: {new Date(cohort.earliestAssignment).toLocaleDateString()}</p>
                             )}
-                            <p>Number of Students: {cohort.studentCount} (testing)</p>
                         </div>
                     </div>
                 );

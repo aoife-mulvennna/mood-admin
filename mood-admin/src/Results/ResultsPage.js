@@ -51,7 +51,7 @@ const ResultsPage = () => {
         <div className="results-page">
             <h1>Results</h1>
             <TagStatistics tagName="stress" />
-            {/* You can add more <TagStatistics /> components for different tags if needed */}
+    
         </div>
     );
 };

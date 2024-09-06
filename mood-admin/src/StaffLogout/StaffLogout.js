@@ -9,7 +9,7 @@ const StaffLogout = () => {
 
   const handleConfirm = () => {
     logout();
-    navigate('/stafflogin'); // Redirect to landing page after logout
+    navigate('/'); // Redirect to landing page after logout
   };
 
   const handleCancel = () => {
